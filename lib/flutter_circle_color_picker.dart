@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-typedef ColorCodeBuilder = Widget Function(BuildContext context, Color color);
-
 class CircleColorPickerController extends ChangeNotifier {
   CircleColorPickerController({
     Color initialColor = const Color.fromARGB(255, 255, 0, 0),
@@ -27,13 +25,13 @@ class CircleColorPicker extends StatefulWidget {
     this.size = const Size(280, 280),
     this.strokeWidth = 2,
     this.thumbSize = 32,
+    this.lightnessThumbSize = 26,
     this.controller,
     this.textStyle = const TextStyle(
       fontSize: 24,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     ),
-    this.colorCodeBuilder,
   }) : super(key: key);
 
   /// Called during a drag when the user is selecting a color.
@@ -73,16 +71,15 @@ class CircleColorPicker extends StatefulWidget {
   /// Default value is 32.
   final double thumbSize;
 
+  /// The size of thumb for lightness slider.
+  ///
+  /// Default value is 26.
+  final double lightnessThumbSize;
+
   /// Text style config
   ///
   /// Default value is Black
   final TextStyle textStyle;
-
-  /// Widget builder that show color code section.
-  /// This functions is called every time color changed.
-  ///
-  /// Default is Text widget that shows rgb strings;
-  final ColorCodeBuilder? colorCodeBuilder;
 
   Color get initialColor =>
       controller?.color ?? const Color.fromARGB(255, 255, 0, 0);
@@ -115,7 +112,7 @@ class _CircleColorPickerState extends State<CircleColorPicker>
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.size.width,
-      height: widget.size.height,
+      height: widget.size.height + widget.lightnessThumbSize,
       child: Stack(
         children: <Widget>[
           _HuePicker(
@@ -138,13 +135,6 @@ class _CircleColorPickerState extends State<CircleColorPicker>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        widget.colorCodeBuilder != null
-                            ? widget.colorCodeBuilder!(context, _color)
-                            : Text(
-                                '#${_color.value.toRadixString(16).padLeft(8, "0").substring(2)}',
-                                style: widget.textStyle,
-                              ),
-                        const SizedBox(height: 16),
                         Material(
                           child: Ink(
                             key: const Key('center'),
@@ -169,17 +159,9 @@ class _CircleColorPickerState extends State<CircleColorPicker>
                           ),
                           shape: const CircleBorder(),
                         ),
-                        const SizedBox(height: 16),
-                        _LightnessSlider(
-                          width: 140,
-                          thumbSize: 26,
-                          hue: _hueController.value,
-                          lightness: _lightnessController.value,
-                          onEnded: _onEnded,
-                          onChanged: (lightness) {
-                            _lightnessController.value = lightness;
-                          },
-                        ),
+                        SizedBox(
+                          height: widget.lightnessThumbSize,
+                        )
                       ],
                     ),
                   );
@@ -187,6 +169,21 @@ class _CircleColorPickerState extends State<CircleColorPicker>
               );
             },
           ),
+          Column(children: [
+            SizedBox(height: widget.size.height),
+            Center(
+              child: _LightnessSlider(
+                width: 140,
+                thumbSize: widget.lightnessThumbSize,
+                hue: _hueController.value,
+                lightness: _lightnessController.value,
+                onEnded: _onEnded,
+                onChanged: (lightness) {
+                  _lightnessController.value = lightness;
+                },
+              ),
+            )
+          ]),
         ],
       ),
     );
