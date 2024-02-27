@@ -111,10 +111,10 @@ class _CircleColorPickerState extends State<CircleColorPicker>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.size.width,
-      height: widget.size.height + widget.lightnessThumbSize,
-      child: Stack(
-        children: <Widget>[
+        width: widget.size.width,
+        height: widget.size.height + widget.lightnessThumbSize,
+        child: FittedBox(
+            child: Stack(children: <Widget>[
           _HuePicker(
             hue: _hueController.value,
             size: widget.size,
@@ -131,11 +131,11 @@ class _CircleColorPickerState extends State<CircleColorPicker>
               return AnimatedBuilder(
                 animation: _lightnessController,
                 builder: (context, _) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Material(
+                  return SizedBox(
+                      width: widget.size.width,
+                      height: widget.size.height,
+                      child: Center(
+                        child: Material(
                           child: Ink(
                             key: const Key('center'),
                             child: InkWell(
@@ -143,8 +143,8 @@ class _CircleColorPickerState extends State<CircleColorPicker>
                                 onTap: (widget.onTap != null)
                                     ? () => widget.onTap?.call(_color)
                                     : null),
-                            width: 64,
-                            height: 64,
+                            width: widget.size.width * 0.5,
+                            height: widget.size.height * 0.5,
                             decoration: BoxDecoration(
                               color: _color,
                               shape: BoxShape.circle,
@@ -159,12 +159,7 @@ class _CircleColorPickerState extends State<CircleColorPicker>
                           ),
                           shape: const CircleBorder(),
                         ),
-                        SizedBox(
-                          height: widget.lightnessThumbSize,
-                        )
-                      ],
-                    ),
-                  );
+                      ));
                 },
               );
             },
@@ -173,7 +168,7 @@ class _CircleColorPickerState extends State<CircleColorPicker>
             SizedBox(height: widget.size.height),
             Center(
               child: _LightnessSlider(
-                width: 140,
+                width: widget.size.width,
                 thumbSize: widget.lightnessThumbSize,
                 hue: _hueController.value,
                 lightness: _lightnessController.value,
@@ -184,9 +179,7 @@ class _CircleColorPickerState extends State<CircleColorPicker>
               ),
             )
           ]),
-        ],
-      ),
-    );
+        ])));
   }
 
   @override
